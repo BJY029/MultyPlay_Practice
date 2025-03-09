@@ -52,4 +52,5 @@ public class Photon_Manager : MonoBehaviourPunCallbacks
 		Instantiate(obj, spawnPosition, Quaternion.identity)
 		 */
 	}
+	//test
 }
