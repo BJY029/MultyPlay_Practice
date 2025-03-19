@@ -103,6 +103,9 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 	public void OnConnected()
 	{
 		Debug.Log("Photon OnConnected!");
+
+		//서버와 연결이 된 경우, 채팅 채널을 구독한다.
+		chatClient.Subscribe(new string[] { ChatChannel });
 	}
 
 	//서버 연결이 끊어졌을 때 호출된다.
@@ -116,7 +119,16 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 	//	senders : 메시지를 보낸 사용자 이름 배열, message : 수신된 메시지 배열
 	public void OnGetMessages(string channelName, string[] senders, object[] messages)
 	{
-		throw new System.NotImplementedException();
+		for(int i = 0; i < senders.Length; i++)
+		{
+			//보낸 사람의 이름과, 해당 메시지를 문자열로 저장한다.
+			string receivedMessage = $"{senders[i]} : {messages[i]}";
+			//해당된 채널 이름과 받은 메시지 정보를 디버그 창에 출력한다.
+			Debug.Log($"[{channelName}] {receivedMessage}");
+
+			//ChatUIManager의 DisplayMessage() 함수를 호출하여, 전달받은 메시지를 화면상에 출력한다.
+			ChatUIManager.instance.DisplayMessage(receivedMessage);
+		}
 	}
 
 	//개인 메시지(귓속말 같은 것)를 받을 때 호출된다.
@@ -141,7 +153,20 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 	//특정 캐릭터가 길드에 들어오면서, 길드의 채널을 사용할 수 있게 되는데, 이때 길드 채널에 구독하는 방식 활용
 	public void OnSubscribed(string[] channels, bool[] results)
 	{
-		throw new System.NotImplementedException();
+		//구동한 채널 이름이 들어있는 배열을 for 문을 통해 탐색한다.
+		for(int i = 0; i < channels.Length; i++)
+		{
+			//해당 위치의 채널의 구독이 성공한 경우
+			if (results[i])
+			{
+				Debug.Log($"Subscribed to channel: {channels[i]}");
+			}
+			//해당 위치의 채널의 구독을 실패한 경우
+			else
+			{
+				Debug.LogError($"Failed to subscribe to channel : {channels[i]}"); 
+			}
+		}
 	}
 
 	//채널 구독을 취소했을 때 호출된다.
