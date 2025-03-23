@@ -35,6 +35,10 @@ public class Photon_Manager : MonoBehaviourPunCallbacks
 		Debug.Log("룸에 접속하였습니다.");
 		//방에 참가하면 해당 함수를 통해 플레이어를 생성한다.
 		SpawnPlayer();
+
+		//채팅 서버 초기화
+		ChatManager.Instance.Initialize();
+		BubbleUIManager.instance.InitalizeBubble();
 	}
 
 	//플레이어를 생성하는 함수

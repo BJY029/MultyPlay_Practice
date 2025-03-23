@@ -2,6 +2,9 @@ using UnityEngine;
 using Photon.Chat;
 using ExitGames.Client.Photon;
 using Photon.Pun;
+using System.Linq;
+using Photon.Realtime;
+using Unity.VisualScripting;
 
 //IChatClientListner 인터페이스 상속, 인터페이스를 구현하여 Phton Chat 이벤트 리스너 역할 수행
 public class ChatManager : MonoBehaviour, IChatClientListener
@@ -18,14 +21,22 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 
 	private ChatClient chatClient;
 
-	void Start()
+	//초기화 함수
+	public void Initialize()
 	{
+		//만약 현재 해당 플레이어의 nickname이 null이면
+		if(string.IsNullOrEmpty(PhotonNetwork.NickName))
+		{
+			//임의로 nickname을 설정해준다.(Player_(actornumber))
+			PhotonNetwork.NickName = $"Player_{PhotonNetwork.LocalPlayer.ActorNumber}";
+		}
+
 		////chatClient 인스턴스 생성(스크립트에 적용된 IChatClientListner가 적용됨)
 		chatClient = new ChatClient(this);
 		//Connect 메서드를 통해서, PhotonNetwork 에서 App ID와 버전 정보를 가져와서 연결
 		//AuthenticationValues를 사용하여 현제 플레이어 닉네임을 인정 정보로 전달
 		chatClient.Connect(PhotonNetwork.PhotonServerSettings.AppSettings.AppIdChat,
-			PhotonNetwork.AppVersion, new AuthenticationValues(PhotonNetwork.NickName));
+			PhotonNetwork.AppVersion, new Photon.Chat.AuthenticationValues(PhotonNetwork.NickName));
 	}
 
 	//주기적으로 Photon chat 서비스 업데이트
@@ -43,7 +54,7 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 		{
 			//PublishMessage를 호출하여 채팅 체널에 메시지를 게시
 			//메시지는 "닉네임 : 메시지" 형식으로 전송된다.\
-			chatClient.PublishMessage(ChatChannel, $"{PhotonNetwork.NickName} : {message}");
+			chatClient.PublishMessage(ChatChannel,message);
 		}
 	}
 
@@ -128,6 +139,22 @@ public class ChatManager : MonoBehaviour, IChatClientListener
 
 			//ChatUIManager의 DisplayMessage() 함수를 호출하여, 전달받은 메시지를 화면상에 출력한다.
 			ChatUIManager.instance.DisplayMessage(receivedMessage);
+
+			//링큐 사용
+			//현재 방에 있는 플레이어들 중에서 닉네임이 senders[i]인 사람을 찾아서 sendersPlayer에 담는다.
+			//만약 그런 사람이 없다면 null로 남는다.
+			Player sendersPlayer = PhotonNetwork.PlayerList.FirstOrDefault(p => p.NickName == senders[i]);
+			//해당되는 플레이어가 존재하면
+			if(sendersPlayer != null )
+			{
+				//해당 플레이어의 actorNumber와 메시지를 받아서
+				int actorNumber = sendersPlayer.ActorNumber;
+				string message = messages[i].ToString();
+
+				//이를 말풍선에 표시하도록 함수를 호출한다.
+				BubbleUIManager.instance.ShowBubbleForPlayer(actorNumber, message);
+			}
+
 		}
 	}
 
