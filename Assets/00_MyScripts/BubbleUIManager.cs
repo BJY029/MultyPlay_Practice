@@ -16,7 +16,7 @@ public class BubbleUIManager : MonoBehaviourPunCallbacks
 	//말풍선 프리팹
 	public GameObject bubblePrefab;
 	//각 플레이어마다 말풍선을 할당하기 위해 관련 정보를 담을 딕셔너리
-	private Dictionary<int, GameObject> playerBubbles = new Dictionary<int, GameObject>();
+	private Dictionary<int, SpeechBubble> playerBubbles = new Dictionary<int, SpeechBubble>();
 
 	//자기 자신의 말풍선을 초기화 하는 함수
 	public void InitalizeBubble()
@@ -60,8 +60,12 @@ public class BubbleUIManager : MonoBehaviourPunCallbacks
 			GameObject bubble = Instantiate(bubblePrefab, transform);
 			//해당 말풍선을 비활성화한다.
 			bubble.SetActive(false);
+			//그 다음 speech 객체를 생성한 후,
+			SpeechBubble speech = bubble.GetComponent<SpeechBubble>();
+			//해당 프리펩이 적용된 SpeechBubble 스크립트의 Initalize 함수를 호출해서, 말풍선 위치를 설정한다.
+			speech.Initalize(actorNumber);
 			//그리고 해당 플레이어에게 말풍선을 할당한다.(딕셔너리 저장)
-			playerBubbles[actorNumber] = bubble;
+			playerBubbles[actorNumber] = speech;
 		}
 	}
 
@@ -82,9 +86,10 @@ public class BubbleUIManager : MonoBehaviourPunCallbacks
 	public void ShowBubbleForPlayer(int actorNumber, string message)
 	{
 		//딕셔너리 안에 해당되는 플레이어가 존재하면, 키에 해당되는 값을 반환시켜준다.
-		if(playerBubbles.TryGetValue(actorNumber, out GameObject bubble))
+		if(playerBubbles.TryGetValue(actorNumber, out SpeechBubble bubble))
 		{
-			bubble.SetActive(true);
+			bubble.gameObject.SetActive(true);
+			bubble.SetText(message);
 		}
 	}
 
@@ -92,9 +97,9 @@ public class BubbleUIManager : MonoBehaviourPunCallbacks
 	public void HideBubbleForPlayer(int actorNumber)
 	{
 		//딕셔너리 안에 해당되는 플레이어가 존재하면, 키에 해당되는 값을 반환시켜준다.
-		if (playerBubbles.TryGetValue(actorNumber, out GameObject bubble))
+		if (playerBubbles.TryGetValue(actorNumber, out SpeechBubble bubble))
 		{
-			bubble.SetActive(false);
+			bubble.gameObject.SetActive(false);
 		}
 	}
 }

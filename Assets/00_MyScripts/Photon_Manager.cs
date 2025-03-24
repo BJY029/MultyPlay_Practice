@@ -50,11 +50,14 @@ public class Photon_Manager : MonoBehaviourPunCallbacks
 		//포톤 네트워크를 사용할 땐, 기존과 달리 생성자를 사용할 때 PhotonNetwork를 앞에 붙여줘야 한다.(그래야 동기화 됨)
 			//또한 포톤 네트워크에서 생성자를 사용할 땐, 리소스를 활용한다.
 			//따라서 Resource 폴더를 만들어준 후, 거기 안에 Player를 드래그 드롭해서 프리팹을 만들어준다.
-		PhotonNetwork.Instantiate("PlayerPrefab", spawnPosition, Quaternion.identity);
+		GameObject playerObject = PhotonNetwork.Instantiate("PlayerPrefab", spawnPosition, Quaternion.identity);
 		/* 즉 위를 풀어서 쓰면 다음과 같은 명령어이다.
 		GameObject obj = Resources.Load<GameObject>("PlayerPrefab");
 		Instantiate(obj, spawnPosition, Quaternion.identity)
 		 */
+
+		//생성된 오브젝트를 현재 로컬 플레이어의 TagObject에 저장한다.
+		PhotonNetwork.LocalPlayer.TagObject = playerObject;
 	}
 	//test
 }
