@@ -93,13 +93,4 @@ public class BubbleUIManager : MonoBehaviourPunCallbacks
 		}
 	}
 
-	//플레이어의 말풍선을 비활성화 시키는 함수
-	public void HideBubbleForPlayer(int actorNumber)
-	{
-		//딕셔너리 안에 해당되는 플레이어가 존재하면, 키에 해당되는 값을 반환시켜준다.
-		if (playerBubbles.TryGetValue(actorNumber, out SpeechBubble bubble))
-		{
-			bubble.gameObject.SetActive(false);
-		}
-	}
 }
