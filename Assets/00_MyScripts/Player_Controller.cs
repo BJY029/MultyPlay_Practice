@@ -13,12 +13,38 @@ public class Player_Controller : MonoBehaviour
 	private float gravity = -9.81f;
 	private Vector3 velocity;
 
+	public int OwnerActorNumber {  get; private set; }
+
+
 	//플레이어의 이동 속도
     public float speed;
 	//Photon에서 객체가 누구의 것인지 확인하는 컴포넌트
 	PhotonView view;
 
-	private void Start()
+
+	public void Initalize(int actorNumber)
+	{
+		//해당 오브젝트를 내가 소유했을 때만(캐릭터가 A의 소유면, A만 해당 함수안의 코드 실행)
+		if (view.IsMine)
+		{
+			//로컬에서 먼저 자신의 actornumber 설정
+			OwnerActorNumber = actorNumber;
+			//SetActorNumber라는 이름의 RPC  함수를 현재 클라이언트 + 나중에 접속한 클라이언트들을 대상으로 실행
+			view.RPC("SetActorNumber", RpcTarget.AllBuffered, actorNumber);
+		}
+	}
+
+
+	//해당 함수가 RPC로 호출될 수 있다는 것을 명시
+	[PunRPC]
+	public void SetActorNumber(int actorNumber)
+	{
+		//나의 ActorNumber를 전달받은 값으로 설정해준다.
+		OwnerActorNumber = actorNumber;
+	}
+
+
+	private void Awake()
 	{
 		//현재 객체의 PhotonView를 가져온다.
 		//이를 통해서 현재 플레이어가 본인의 캐릭털를 조작할 수 있는지 확인할 수 있다.

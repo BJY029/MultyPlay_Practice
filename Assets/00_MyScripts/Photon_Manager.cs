@@ -56,8 +56,10 @@ public class Photon_Manager : MonoBehaviourPunCallbacks
 		Instantiate(obj, spawnPosition, Quaternion.identity)
 		 */
 
-		//생성된 오브젝트를 현재 로컬 플레이어의 TagObject에 저장한다.
-		PhotonNetwork.LocalPlayer.TagObject = playerObject;
+		//현재 나의 ActorNumber를 저장하고
+		int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+		//플레이어의 Player_Controller 스크립트의 Initalize 함수에 해당 actornumber를 넘겨준다.
+		playerObject.GetComponent<Player_Controller>().Initalize(actorNumber);
 	}
 	//test
 }

@@ -3,7 +3,6 @@ using Photon.Realtime;
 using Photon.Pun;
 using System.Linq;
 using UnityEngine.UI;
-using UnityEditor.VersionControl;
 using System.Collections;
 using System;
 
@@ -18,7 +17,6 @@ public class SpeechBubble : MonoBehaviour
 
     [HideInInspector]
     public Text SpeechText;
-    public RectTransform[] Contents;
     Animator animator;
 
     Coroutine coroutine;
@@ -26,17 +24,40 @@ public class SpeechBubble : MonoBehaviour
     public void Initalize(int actorNumber)
     {
         animator = GetComponent<Animator>();
-        //현재 방에 있는 플레이어 목록 에서, actorNumber가 일치하는 해당 플레이어 객체를 찾아 targetPlayer에 저장한다.
-        Player targetPlayer = PhotonNetwork.PlayerList.FirstOrDefault(p => p.ActorNumber == actorNumber);
-        //만약 해당 플레이어가 존재하면
-        if(targetPlayer != null)
+		////현재 방에 있는 플레이어 목록 에서, actorNumber가 일치하는 해당 플레이어 객체를 찾아 targetPlayer에 저장한다.
+		//Player targetPlayer = PhotonNetwork.PlayerList.FirstOrDefault(p => p.ActorNumber == actorNumber);
+		////만약 해당 플레이어가 존재하면
+		//if(targetPlayer != null)
+		//{
+		//    //Photon.Realtime.Playter.TagObject : Photon에서 사용자 정의 데이터를 저장하기 위한 속성
+		//    //플레이어가 소유한 아바타 오브젝트, 캐릭터, 기타 정보를 여기에 할당해둘 수 있다.
+		//    //해당 플레이어의 TargetObject를 GameObject로 캐스팅한 후, 그 오브젝트의 transform을 target 변수에 저장
+		//    target = ((GameObject)targetPlayer.TagObject).transform;
+		//}
+
+		//ActorNumber를 활용해서 플레이어의 위치를 찾는다.
+		target = FindPlayerTransformByActorNumber(actorNumber);
+	}
+
+    //ActorNumber로 Player의 위치를 찾는 함수
+    private Transform FindPlayerTransformByActorNumber(int targetActorNumber)
+    {
+        //현재 씬에 존재하는 모든 Player_Controller 오브젝트를 배열로 가져온다.
+        Player_Controller[] allPlayers = FindObjectsByType<Player_Controller>(FindObjectsSortMode.None);
+        //각 Player_Controller를 돌면서
+        foreach (Player_Controller player in allPlayers)
         {
-            //Photon.Realtime.Playter.TagObject : Photon에서 사용자 정의 데이터를 저장하기 위한 속성
-            //플레이어가 소유한 아바타 오브젝트, 캐릭터, 기타 정보를 여기에 할당해둘 수 있다.
-            //해당 플레이어의 TargetObject를 GameObject로 캐스팅한 후, 그 오브젝트의 transform을 target 변수에 저장
-            target = ((GameObject)targetPlayer.TagObject).transform;
+            //해당 스크립트의 ActornNumber가 찾고있는 번호와 같으면
+            if(player.OwnerActorNumber == targetActorNumber)
+            {
+                //해당 스크립트가 적용된 플레이어 위치를 반환한다.
+                return player.transform;
+            }
         }
+        //없으면 null을 반환한다.
+        return null;
     }
+
 
     public void SetText(string message)
     {
@@ -60,12 +81,6 @@ public class SpeechBubble : MonoBehaviour
 
         //현재 실행중인 코루틴이 없으면
         SpeechText.text = message;
-        for(int i = 0; i < Contents.Length; i++)
-        {
-            //content size fitter를 초기화 시켜주는 함수,
-            //Contents[] 리스트에는 각 content size fitter가 들어있는 오브젝트가 들어가있다.
-            LayoutRebuilder.ForceRebuildLayoutImmediate(Contents[i]);
-        }
         //말풍선이 열리는 애니메이션 제작
         animator.Play("SpeechBubble_Open");
         //3초 대기 후, 말풍선을 닫는 코루틴 재생
@@ -89,6 +104,7 @@ public class SpeechBubble : MonoBehaviour
         if(action != null)
         {
             action?.Invoke();
+            yield break;
         }
         //넘어온 action이 없으면 말풍선 비활성화
         else gameObject.SetActive(false);

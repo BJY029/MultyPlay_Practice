@@ -2,6 +2,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
+using System.Collections;
 
 public class BubbleUIManager : MonoBehaviourPunCallbacks
 {
@@ -62,11 +63,22 @@ public class BubbleUIManager : MonoBehaviourPunCallbacks
 			bubble.SetActive(false);
 			//그 다음 speech 객체를 생성한 후,
 			SpeechBubble speech = bubble.GetComponent<SpeechBubble>();
-			//해당 프리펩이 적용된 SpeechBubble 스크립트의 Initalize 함수를 호출해서, 말풍선 위치를 설정한다.
-			speech.Initalize(actorNumber);
+			//딜레이를 주기 위해 코루틴을 통해서 딜레이를 준다.
+			StartCoroutine(BubbleByActorNumberDelay(speech, actorNumber));
 			//그리고 해당 플레이어에게 말풍선을 할당한다.(딕셔너리 저장)
 			playerBubbles[actorNumber] = speech;
 		}
+	}
+	
+	//딜레이를 주는 이유는, ActorNumber에 해당되는 오브젝트가 아직 완전히 세팅되지 않았을 수 있기 때문이다.
+	//Photon에는 네트워크 딜레이가 있기 때문에, Initalize() 함수가 실행될 때, 아직 SetActorNumber() 함수가 실행이 
+	//안됐을수도 있다. 따라서 딜레이를 줘서, RPC가 시간 내에 도착하여 ActorNumber가 세팅된 상태가 되도록 하는 것
+	IEnumerator BubbleByActorNumberDelay(SpeechBubble speech, int actorNumber)
+	{
+		//약간의 딜레이를 주고
+		yield return new WaitForSeconds(0.3f);
+		//해당 프리펩이 적용된 SpeechBubble 스크립트의 Initalize 함수를 호출해서, 말풍선 위치를 설정한다.
+		speech.Initalize(actorNumber);
 	}
 
 	//플레이어의 말풍선을 파괴하는 함수
