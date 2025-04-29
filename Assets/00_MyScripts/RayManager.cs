@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class RayManager : MonoBehaviour
 {
@@ -11,9 +12,15 @@ public class RayManager : MonoBehaviour
 		//GetMouseButton : 마우스 버튼이 눌린 경우에만 지속됨
 		//GetMouseButtonDown : 마우스 버튼이 한번 눌리면 지속됨
 		//GetMouseButtonUp : 마우스 버튼이 눌린 후 떼지면 지속됨
-		if(Input.GetMouseButtonDown(1))
+		//마우스 오른쪽 그리고, 마우스 포인터가 활성화된 UI 오브젝트 위에 없는 경우 수행
+		if(Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject(0))
 		{
 			FindPlayerClick();
+		}
+		//우클릭시, 마우스 포인터가 활성화된 UI 오브젝트 위에 없는 경우, UI 창이 닫히도록 설정한다.
+		if (Input.GetMouseButtonDown (0) && !EventSystem.current.IsPointerOverGameObject(0))
+		{
+			interactionUI.DeactiveObject();
 		}
 	}
 
@@ -35,8 +42,19 @@ public class RayManager : MonoBehaviour
 				//UI를 활성화시키고
 				interactionUI.gameObject.SetActive(true);
 				//활성화 애니메이션 재생 및 해당 UI를 플레이어 위치로 이동시킨다.
-				interactionUI.Initialize(player);
+				//상호작용 한 대상이 플레이어이므로, player 상태 값을 넘겨준다.
+				interactionUI.Initialize(player, Interaction_State.player);
 			}
+			else
+			{
+				//플레이어가 존재하지 않는 곳에서 좌클릭을 했을 경우 UI를 닫는다.
+				interactionUI.DeactiveObject();
+			}
+		}
+		else
+		{
+			//플레이어가 존재하지 않는 곳에서 좌클릭을 했을 경우 UI를 닫는다.
+			interactionUI.DeactiveObject();
 		}
 	}
 }
