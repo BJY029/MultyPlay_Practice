@@ -13,6 +13,7 @@ public class Player_Controller : MonoBehaviour
 	private float gravity = -9.81f;
 	private Vector3 velocity;
 
+	//내 자신의 ID 설정 및 저장하는 프로퍼티
 	public int OwnerActorNumber {  get; private set; }
 
 
@@ -25,7 +26,7 @@ public class Player_Controller : MonoBehaviour
 	public void Initalize(int actorNumber)
 	{
 		//해당 오브젝트를 내가 소유했을 때만(캐릭터가 A의 소유면, A만 해당 함수안의 코드 실행)
-		if (view.IsMine)
+		if (isMinePhoton())
 		{
 			//로컬에서 먼저 자신의 actornumber 설정
 			OwnerActorNumber = actorNumber;
@@ -34,6 +35,10 @@ public class Player_Controller : MonoBehaviour
 		}
 	}
 
+	public bool isMinePhoton()
+	{
+		return view.IsMine;
+	}
 
 	//해당 함수가 RPC로 호출될 수 있다는 것을 명시
 	[PunRPC]

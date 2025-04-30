@@ -8,8 +8,15 @@ public class InteractionButtonUI : MonoBehaviour
     public Image IconImage;
     public Text ButtonName;
 
-    //Action_State를 저장할 변수
-    Action_State m_Action;
+    Button button;
+
+	private void Awake()
+	{
+		button = GetComponent<Button>();
+	}
+
+	//Action_State를 저장할 변수
+	Action_State m_Action;
     public void Initalize(Action_State state)
     {
         //전달 받은 Action_state을 m_Action에 저장
@@ -26,5 +33,11 @@ public class InteractionButtonUI : MonoBehaviour
         IconImage.gameObject.SetActive(true);
         //해당되는 오브젝트 이미지를, 현재 Action_State 문자열을 사용하여 이미지를 찾아와서 적용시켜준다.
         IconImage.sprite = ActionHolder.GetAtlas(state.ToString());
+        
+        //해당되는 버튼에 연결된 함수 제거 하고
+        button.onClick.RemoveAllListeners();
+        //해당 버튼에 각 기능에 맞는 함수를 연결시켜준다.
+        //즉, Actions 딕셔너리에 state를 키값으로 해서 연결된 함수를 button에 연결시켜준다.
+        button.onClick.AddListener(() => ActionHolder.Actions[state]());
     }
 }

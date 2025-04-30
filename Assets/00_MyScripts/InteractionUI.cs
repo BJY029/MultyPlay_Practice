@@ -57,6 +57,8 @@ public class InteractionUI : MonoBehaviour
 	//UI 닫는 애니메이션 재생
 	public void DeactiveObject()
 	{
+		//UI 오브젝트가 비활성화 되어 있으면, 애니메이션을 재생하지 않는다.
+		if (gameObject.activeSelf == false) return;
 		animator.Play("Hexagon_Out");
 	}
 

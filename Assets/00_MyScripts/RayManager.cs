@@ -36,9 +36,13 @@ public class RayManager : MonoBehaviour
 		{
 			//맞은 플레이어의 collider에 있는 Player_Controller 스크립트를 받아온다.
 			Player_Controller player = hit.collider.GetComponent<Player_Controller>();
+			//해당 플레이어가 내 자신이라면 함수 수행 중지
+			if (player.isMinePhoton()) return;
 			//플레이어가 존재하면
 			if (player != null)
 			{
+				//내 아이디를 설정해서, 나를 찾을 수 있도록 해준다.
+				ActionHolder.TargetPlayerIndex = player.OwnerActorNumber;
 				//UI를 활성화시키고
 				interactionUI.gameObject.SetActive(true);
 				//활성화 애니메이션 재생 및 해당 UI를 플레이어 위치로 이동시킨다.
