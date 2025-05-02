@@ -13,6 +13,7 @@ public class PopUPManager : MonoBehaviour
 		{
 			instance = this;
 		}
+		gameObject.transform.localScale = Vector3.one;
 		gameObject.SetActive(false);
 	}
 
@@ -35,6 +36,9 @@ public class PopUPManager : MonoBehaviour
 		//버튼 Listener 재연결
 		YesBtn.onClick.AddListener(() => Yes());
 		NoBtn.onClick.AddListener(() => NO());	
+		//버튼의 입력이 가해지면, PopUPUI를 비활성화시킨다.
+		YesBtn.onClick.AddListener(() => this.gameObject.SetActive(false));
+		NoBtn.onClick.AddListener(() => this.gameObject.SetActive(false));
 	}
 
 	//각 버튼의 onClick에 연결된 함수들을 제거하는 함수

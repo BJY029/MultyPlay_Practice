@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 public class PhotonHelper
@@ -14,5 +15,20 @@ public class PhotonHelper
 		}
 		//존재하지 않으면, 다음을 반환한다.
 		return "Unknown Player!";
+	}
+
+	//actorNumber를 통해서 player 객체를 찾아서 반환해주는 함수
+	public static Player GetPlayer(int actorNumber)
+	{
+		//PhotonNetork 상에 있는 Player 리스트를 돌면서
+		foreach(var player in PhotonNetwork.PlayerList)
+		{
+			//일치하는 actornumber가 존재하면
+			if(player.ActorNumber == actorNumber)
+				//해당 플레이어 객체를 반환한다.
+				return player;
+		}
+		//없으면 null 반환
+		return null;
 	}
 }

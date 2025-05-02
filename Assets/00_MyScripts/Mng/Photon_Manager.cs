@@ -55,6 +55,7 @@ public class Photon_Manager : MonoBehaviourPunCallbacks
 		GameObject obj = Resources.Load<GameObject>("PlayerPrefab");
 		Instantiate(obj, spawnPosition, Quaternion.identity)
 		 */
+		//Debug.Log(PhotonNetwork.LocalPlayer.ActorNumber + " 플레이어 생성 완료");
 
 		//현재 나의 ActorNumber를 저장하고
 		int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;

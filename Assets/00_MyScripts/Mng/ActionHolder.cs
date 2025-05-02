@@ -46,8 +46,12 @@ public class ActionHolder : MonoBehaviourPunCallbacks
 	public static void InviteParty()
 	{
 		//파티 초대 요청을 보낸 플레이어의 ID와 내 ID를 ReceivePartyInvite 함수로 넘겨준다.
-		photonView.RPC("ReceivePartyInvite", RpcTarget.Others, 
+		photonView.RPC("ReceivePartyInvite", PhotonHelper.GetPlayer(TargetPlayerIndex), 
 			PhotonNetwork.LocalPlayer.ActorNumber, TargetPlayerIndex);
+
+		string Toast = string.Format(
+		"<color=#FFF200>{0}</color>님에게 파티를 초대하였습니다.", PhotonHelper.GetPlayerNickName(TargetPlayerIndex));
+		ToastPopUPManager.Instance.Initialize(Toast);
 	}
 
 	[PunRPC]
@@ -57,8 +61,47 @@ public class ActionHolder : MonoBehaviourPunCallbacks
 		string temp = string.Format(
 			"<color=#FFF200>{0}</color>\r\n님이 파티를 초대하였습니다.\r\n수락하시겠습니까?",
 			PhotonHelper.GetPlayerNickName(inviterID));
+
+		//수락 버튼 action
+		Action YES = () =>
+		{
+			//파티 초대를 보낸 플레이어 객체를 받아온다.
+			Photon.Realtime.Player HOST = PhotonHelper.GetPlayer(inviterID);
+			//파티 초대를 받은 플레이어의 객체를 받아온다.
+			Photon.Realtime.Player CLIENT = PhotonHelper.GetPlayer(targetPlayerID);
+
+			//파티 초대를 보낸 플레이어가 속한 파티를 party에 저장
+			Party party = BaseManager.Party.GetParty(HOST);
+			//만약 파티 초대를 보낸 플레이어가 속한 파티가 없는 경우 파티를 새로 만들어준다.
+			if (party == null)
+			{
+				party = BaseManager.Party.CreateParty(HOST);
+			}
+			//파티 초대를 받는 플레이어를 해당 파티에 추가시킨다.
+			BaseManager.Party.JoinParty(CLIENT, party.PartyID);
+		};
+
+		//거절 버튼 action
+		Action NO = () =>
+		{
+			ToastPopUPManager.Instance.Initialize("파티 초대를 거절하였습니다ㅠㅠ");
+			//상대방의 화면에 파티 초대 거부 했다는 것을 알리기 위해 RPC 사용해서 상대방에게 함수 실행 요청
+			photonView.RPC("IgonrePartyInvite", PhotonHelper.GetPlayer(inviterID), inviterID);
+		};
+
 		//PopUPManger의 instance 함수를 호출한다.
-		PopUPManager.instance.Initialize(temp, null, null);
+		PopUPManager.instance.Initialize(temp, YES, NO);
+	}
+
+	//파티 초대가 거부되었다는 함수 RPC
+	[PunRPC]
+	public void IgonrePartyInvite(int targetPlayerID)
+	{
+		string Toast = string.Format(
+		"<color=#FFF200>{0}</color>님이 파티 초대를 거절하였습니다....",
+		PhotonHelper.GetPlayerNickName(targetPlayerID));
+
+		ToastPopUPManager.Instance.Initialize(Toast);
 	}
 
 	//거래 함수

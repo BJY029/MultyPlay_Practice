@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class InteractionButtonUI : MonoBehaviour
 {
+    public InteractionUI baseInteraction;
     public Image LineImage;
     public Image IconImage;
     public Text ButtonName;
@@ -36,6 +37,8 @@ public class InteractionButtonUI : MonoBehaviour
         
         //해당되는 버튼에 연결된 함수 제거 하고
         button.onClick.RemoveAllListeners();
+        //각 버튼이 클릭되면, UI창이 닫히도록 하기 위해 다음 함수를 연결시켜준다.
+        button.onClick.AddListener(() => baseInteraction.DeactiveObject());
         //해당 버튼에 각 기능에 맞는 함수를 연결시켜준다.
         //즉, Actions 딕셔너리에 state를 키값으로 해서 연결된 함수를 button에 연결시켜준다.
         button.onClick.AddListener(() => ActionHolder.Actions[state]());
